@@ -1,0 +1,17 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.out
+coverage.html
+
+# Test binary, built with `go test -c`
+*.test
+
+# Ignoring IDE and OS specific files
+.idea/**
+.DS_Store
+
+

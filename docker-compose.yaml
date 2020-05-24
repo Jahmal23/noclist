@@ -1,0 +1,13 @@
+version: '3'
+services:
+  BADSEC:
+    image: adhocteam/noclist
+    ports:
+      - "8888:8888"
+    expose:
+      - "8888"
+    networks:
+      - noclistnetwork
+networks:
+  noclistnetwork:
+    driver: bridge
