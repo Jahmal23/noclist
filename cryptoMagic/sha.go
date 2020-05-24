@@ -1,19 +1,20 @@
 package cryptoMagic
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 )
 
-//todo - can't test the error condition, need to make a simple shaHandler interface and inject to make testable
+type ShaHelper struct {
+	Handler ShaHandler //todo - use a DI framework -- wire??
+}
 
-func ToSha256(val string) (string, error) {
-	hash := sha256.New()
-	_, err := hash.Write([]byte(val))
+func (sh *ShaHelper) ToSha256(val string) (string, error) {
+
+	_, err := sh.Handler.Write([]byte(val))
 
 	if err != nil {
 		return "", err
 	}
 
-	return hex.EncodeToString(hash.Sum(nil)), nil
+	return hex.EncodeToString(sh.Handler.Sum(nil)), nil
 }

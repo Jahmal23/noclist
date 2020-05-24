@@ -14,20 +14,20 @@ import (
 const maxDurationMS = 3000
 
 type HttpRequest struct {
-	UUID        	 string
-	BaseUrl     	 string
-	Function    	 string
-	Username    	 string
-	Password    	 string
-	APIkey      	 string
+	UUID             string
+	BaseUrl          string
+	Function         string
+	Username         string
+	Password         string
+	APIkey           string
 	XRequestChecksum string
-	ContentType 	 string
-	M           	 map[string]string
-	RequestBody 	 []byte
-	VerifySSL   	 bool
+	ContentType      string
+	M                map[string]string
+	RequestBody      []byte
+	VerifySSL        bool
 }
 
-//todo - this needs tests, was modified from our Json expecting library
+//todo - this needs more tests, was modified from our Json expecting library
 func HttpGetRawString(req HttpRequest) (string, error) {
 	fmt.Println("Making Get Request...")
 
@@ -56,7 +56,7 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 		request.Header.Add("x-api-key", req.APIkey)
 	}
 
-	if req.XRequestChecksum != ""  {
+	if req.XRequestChecksum != "" {
 		request.Header.Add("X-Request-Checksum", req.XRequestChecksum)
 	}
 
@@ -73,7 +73,7 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 		return "", responseErr
 	}
 
-	response, err :=  ioutil.ReadAll(resp.Body)
+	response, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		return "", err
@@ -111,7 +111,7 @@ func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
 		request.Header.Add("x-api-key", req.APIkey)
 	}
 
-	if req.XRequestChecksum != ""  {
+	if req.XRequestChecksum != "" {
 		request.Header.Add("X-Request-Checksum", req.XRequestChecksum)
 	}
 
