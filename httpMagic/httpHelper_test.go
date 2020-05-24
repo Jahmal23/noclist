@@ -14,7 +14,7 @@ func Test_GetAuthTokenEndpoint(t *testing.T) {
 	//defer server.Close()
 
 	//todo - that url should come from env variable
-	req := HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "auth", M: make(map[string]string)}
+	req := HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "auth"}
 
 	result, err := HttpGetRawHeader(req, "Badsec-Authentication-Token") //make a constant
 

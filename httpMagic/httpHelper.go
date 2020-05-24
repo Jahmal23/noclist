@@ -28,6 +28,7 @@ type HttpRequest struct {
 }
 
 //todo - this needs more tests, was modified from our Json expecting library
+//todo - there is a lot duplication in these http methods!!
 func HttpGetRawString(req HttpRequest) (string, error) {
 	fmt.Println("Making Get Request...")
 
