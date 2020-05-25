@@ -1,4 +1,4 @@
-# NoList
+# NoCList
 
 To set up your environment as a new developer:
   PreReq - You have docker installed!!
