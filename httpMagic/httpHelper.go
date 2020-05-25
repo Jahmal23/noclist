@@ -14,30 +14,27 @@ import (
 const maxDurationMS = 3000
 
 type HttpRequest struct {
-	UUID        	 string
-	BaseUrl     	 string
-	Function    	 string
-	Username    	 string
-	Password    	 string
-	APIkey      	 string
+	UUID             string
+	BaseUrl          string
+	Function         string
+	Username         string
+	Password         string
+	APIkey           string
 	XRequestChecksum string
-	ContentType 	 string
-	M           	 map[string]string
-	RequestBody 	 []byte
-	VerifySSL   	 bool
+	TokenHeaderName  string
+	ContentType      string
+	M                map[string]string
+	RequestBody      []byte
+	VerifySSL        bool
 }
 
-//todo - this needs tests, was modified from our Json expecting library
+//todo - this needs more tests, was modified from our Json expecting library
+//todo - there is a lot duplication in these http methods!!
 func HttpGetRawString(req HttpRequest) (string, error) {
-	fmt.Println("Making Get Request...")
-
 	//We are not logging the httpRequest struct to avoid exposing credentials
 	//Calling code can log as they feel necessary when constructing the HttpRequest struct passed in to this method.
 
 	url := buildUrlWithParams(req.BaseUrl, req.Function, req.M)
-
-	fmt.Println("Full Request", url)
-
 	client := http.Client{}
 	timeout := time.Duration(maxDurationMS * time.Millisecond)
 	client.Timeout = timeout
@@ -56,7 +53,7 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 		request.Header.Add("x-api-key", req.APIkey)
 	}
 
-	if req.XRequestChecksum != ""  {
+	if req.XRequestChecksum != "" {
 		request.Header.Add("X-Request-Checksum", req.XRequestChecksum)
 	}
 
@@ -73,7 +70,7 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 		return "", responseErr
 	}
 
-	response, err :=  ioutil.ReadAll(resp.Body)
+	response, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		return "", err
@@ -82,16 +79,26 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 	return string(response), err
 }
 
-//todo - needs tests and consolidating.  Could just return the response to the caller
-func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
-	fmt.Println("Making Get Request...")
+func HttpHttpGetRawStringForExp(rec HttpRequest) func(HttpRequest) (string, error) {
+	f := func(req HttpRequest) (string, error) {
+		return HttpGetRawString(rec)
+	}
+	return f
+}
 
+func HttpGetRawHeaderForExp(rec HttpRequest) func(HttpRequest) (string, error) {
+	f := func(req HttpRequest) (string, error) {
+		return HttpGetRawHeader(rec)
+	}
+	return f
+}
+
+//todo - needs tests and consolidating.  Could just return the response to the caller
+func HttpGetRawHeader(req HttpRequest) (string, error) {
 	//We are not logging the httpRequest struct to avoid exposing credentials
 	//Calling code can log as they feel necessary when constructing the HttpRequest struct passed in to this method.
 
 	url := buildUrlWithParams(req.BaseUrl, req.Function, req.M)
-
-	fmt.Println("Full Request", url)
 
 	client := http.Client{}
 	timeout := time.Duration(maxDurationMS * time.Millisecond)
@@ -111,7 +118,7 @@ func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
 		request.Header.Add("x-api-key", req.APIkey)
 	}
 
-	if req.XRequestChecksum != ""  {
+	if req.XRequestChecksum != "" {
 		request.Header.Add("X-Request-Checksum", req.XRequestChecksum)
 	}
 
@@ -128,7 +135,7 @@ func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
 		return "", responseErr
 	}
 
-	return resp.Header.Get(headerName), nil
+	return resp.Header.Get(req.TokenHeaderName), nil
 }
 
 func CreateSOAPTestServer(intendedResp string, httpCodeToReturn int) (server *httptest.Server, err error) {
