@@ -39,3 +39,16 @@ func Test_GetUsers_Bad_Token(t *testing.T) {
 	assert.Empty(t, users)
 	assert.Equal(t, errors.New("invalid auth token"), err)
 }
+
+func Test_resultsToJson(t *testing.T) {
+	bs := &BadSec{ShaHandler: sha256.New()}
+
+	token, _ := bs.GetAuthToken()
+
+	users, _ := bs.GetUsers(token)
+
+	jsonList, err := bs.resultsToJson(users)
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, jsonList)
+}

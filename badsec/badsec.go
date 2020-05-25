@@ -1,10 +1,12 @@
 package badsec
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"noclist/cryptoMagic"
 	"noclist/httpMagic"
+	"strings"
 )
 
 //todo - comes from env file
@@ -41,4 +43,38 @@ func (bs *BadSec) GetUsers(authToken string) (string, error) {
 	userreq := httpMagic.HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "users", XRequestChecksum: checkSum}
 
 	return httpMagic.HttpGetRawString(userreq)
+}
+
+//todo - needs basic tests
+func (bs *BadSec) GetJsonUsers() (string, error) {
+
+	token, err := bs.GetAuthToken()
+
+	if err != nil {
+		return "", nil
+	}
+
+	users, err := bs.GetUsers(token)
+
+	if err != nil {
+		return "", nil
+	}
+
+	return bs.resultsToJson(users)
+}
+
+//todo - needs negative tests
+func (bs *BadSec) resultsToJson(results string) (string, error) {
+
+	if len(results) ==  0 {
+		return "", errors.New("invalid result list")
+	}
+
+	jsoned, err := json.Marshal(strings.Split(results, "\n"))
+
+	if err != nil {
+		return "", nil
+	}
+
+	return string(jsoned), nil
 }

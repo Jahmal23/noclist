@@ -30,15 +30,10 @@ type HttpRequest struct {
 //todo - this needs more tests, was modified from our Json expecting library
 //todo - there is a lot duplication in these http methods!!
 func HttpGetRawString(req HttpRequest) (string, error) {
-	fmt.Println("Making Get Request...")
-
 	//We are not logging the httpRequest struct to avoid exposing credentials
 	//Calling code can log as they feel necessary when constructing the HttpRequest struct passed in to this method.
 
 	url := buildUrlWithParams(req.BaseUrl, req.Function, req.M)
-
-	fmt.Println("Full Request", url)
-
 	client := http.Client{}
 	timeout := time.Duration(maxDurationMS * time.Millisecond)
 	client.Timeout = timeout
@@ -85,14 +80,10 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 
 //todo - needs tests and consolidating.  Could just return the response to the caller
 func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
-	fmt.Println("Making Get Request...")
-
 	//We are not logging the httpRequest struct to avoid exposing credentials
 	//Calling code can log as they feel necessary when constructing the HttpRequest struct passed in to this method.
 
 	url := buildUrlWithParams(req.BaseUrl, req.Function, req.M)
-
-	fmt.Println("Full Request", url)
 
 	client := http.Client{}
 	timeout := time.Duration(maxDurationMS * time.Millisecond)
