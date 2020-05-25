@@ -4,12 +4,13 @@ import (
 	"crypto/sha256"
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"noclist/httpMagic"
 	"testing"
 )
 
 func Test_GetAuthToken(t *testing.T) {
 	//todo - a DI framework would automatically initialize the shaHandler
-	bs := &BadSec{ShaHandler: sha256.New()}
+	bs := &BadSec{ShaHandler: sha256.New(), BackOffHandler: &httpMagic.ExpBackOff{}, Endpoint: "http://localhost:8888"}
 
 	token, err := bs.GetAuthToken()
 
@@ -19,7 +20,7 @@ func Test_GetAuthToken(t *testing.T) {
 }
 
 func Test_GetUsers(t *testing.T) {
-	bs := &BadSec{ShaHandler: sha256.New()}
+	bs := &BadSec{ShaHandler: sha256.New(), BackOffHandler: &httpMagic.ExpBackOff{}, Endpoint: "http://localhost:8888"}
 
 	token, _ := bs.GetAuthToken()
 
@@ -30,7 +31,7 @@ func Test_GetUsers(t *testing.T) {
 }
 
 func Test_GetUsers_Bad_Token(t *testing.T) {
-	bs := &BadSec{ShaHandler: sha256.New()}
+	bs := &BadSec{ShaHandler: sha256.New(), BackOffHandler: &httpMagic.ExpBackOff{}, Endpoint: "http://localhost:8888"}
 
 	badToken := ""
 
@@ -41,7 +42,7 @@ func Test_GetUsers_Bad_Token(t *testing.T) {
 }
 
 func Test_resultsToJson(t *testing.T) {
-	bs := &BadSec{ShaHandler: sha256.New()}
+	bs := &BadSec{ShaHandler: sha256.New(), BackOffHandler: &httpMagic.ExpBackOff{}, Endpoint: "http://localhost:8888"}
 
 	token, _ := bs.GetAuthToken()
 

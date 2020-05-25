@@ -8,35 +8,34 @@ import (
 	"testing"
 )
 
-func Test_GetAuthTokenEndpoint(t *testing.T) {
-	//todo - use a test server so we are not dependent on the endpoint directly - well, it IS docker
-	//server, err := CreateJSONTestServer(&struct{ Description string }{"Value"}, 200)
-	//defer server.Close()
+//todo - needs negative tests
+func Test_HttpGetRawHeader(t *testing.T) {
+	server, _ := CreateJSONTestServer(&struct{ Description string }{"OK"}, 200) //todo - mock the header to make this test real
+	defer server.Close()
 
-	//todo - that url should come from env variable
-	req := HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "auth"}
+	//todo - that url should come from env variable, so should the token header
+	req := HttpRequest{UUID: "FOO", BaseUrl: server.URL, Function: "auth", TokenHeaderName: "Badsec-Authentication-Token"}
 
-	result, err := HttpGetRawHeader(req, "Badsec-Authentication-Token") //make a constant
+	_, err := HttpGetRawHeader(req) //make a constant
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, result)
 }
 
+//todo - needs negative tests
 func Test_GetUsersEndpoint(t *testing.T) {
-	//todo - use a test server so we are not dependent on the endpoint directly - well, it IS docker
-	//server, err := CreateJSONTestServer(&struct{ Description string }{"Value"}, 200)
-	//defer server.Close()
+	server, err := CreateJSONTestServer(&struct{ Description string }{"Value"}, 200)
+	defer server.Close()
 
-	//todo - that url should come from env variable
-	authreq := HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "auth"}
+	//todo - that url should come from env variable, so should the token header
+	authreq := HttpRequest{UUID: "FOO", BaseUrl: server.URL, Function: "auth", TokenHeaderName: "Badsec-Authentication-Token"}
 
-	token, err := HttpGetRawHeader(authreq, "Badsec-Authentication-Token") //make a constant
+	token, _ := HttpGetRawHeader(authreq)
 
 	shaHelper := &cryptoMagic.ShaHelper{Handler: sha256.New()}
 
 	checkSum, _ := shaHelper.ToSha256(fmt.Sprintf("%s/users", token))
 
-	userreq := HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "users", XRequestChecksum: checkSum}
+	userreq := HttpRequest{UUID: "FOO", BaseUrl: server.URL, Function: "users", XRequestChecksum: checkSum}
 
 	result, err := HttpGetRawString(userreq)
 

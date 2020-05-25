@@ -21,6 +21,7 @@ type HttpRequest struct {
 	Password         string
 	APIkey           string
 	XRequestChecksum string
+	TokenHeaderName  string
 	ContentType      string
 	M                map[string]string
 	RequestBody      []byte
@@ -78,8 +79,22 @@ func HttpGetRawString(req HttpRequest) (string, error) {
 	return string(response), err
 }
 
+func HttpHttpGetRawStringForExp(rec HttpRequest) func(HttpRequest) (string, error) {
+	f := func(req HttpRequest) (string, error) {
+		return HttpGetRawString(rec)
+	}
+	return f
+}
+
+func HttpGetRawHeaderForExp(rec HttpRequest) func(HttpRequest) (string, error) {
+	f := func(req HttpRequest) (string, error) {
+		return HttpGetRawHeader(rec)
+	}
+	return f
+}
+
 //todo - needs tests and consolidating.  Could just return the response to the caller
-func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
+func HttpGetRawHeader(req HttpRequest) (string, error) {
 	//We are not logging the httpRequest struct to avoid exposing credentials
 	//Calling code can log as they feel necessary when constructing the HttpRequest struct passed in to this method.
 
@@ -120,7 +135,7 @@ func HttpGetRawHeader(req HttpRequest, headerName string) (string, error) {
 		return "", responseErr
 	}
 
-	return resp.Header.Get(headerName), nil
+	return resp.Header.Get(req.TokenHeaderName), nil
 }
 
 func CreateSOAPTestServer(intendedResp string, httpCodeToReturn int) (server *httptest.Server, err error) {

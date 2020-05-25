@@ -13,21 +13,23 @@ import (
 const TokenHeaderName = "Badsec-Authentication-Token"
 
 type BadSec struct {
-	cryptoMagic.ShaHandler
+	Endpoint               string
+	cryptoMagic.ShaHandler //todo - inject by DI tool
+	httpMagic.BackOffHandler
 }
 
 func (bs *BadSec) GetAuthToken() (string, error) {
 	//todo - url comes from env variable file
 	//todo - pass in the timeout as a variable
-	req := httpMagic.HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "auth"}
+	req := httpMagic.HttpRequest{UUID: "FOO", BaseUrl: bs.Endpoint, Function: "auth", TokenHeaderName: TokenHeaderName}
 
-	return httpMagic.HttpGetRawHeader(req, TokenHeaderName)
+	return bs.BackOffHandler.Execute(httpMagic.HttpGetRawHeaderForExp(req), req)
 }
 
 func (bs *BadSec) GetUsers(authToken string) (string, error) {
 
 	//todo - might want to improve this validation
-	if len(authToken) ==  0 {
+	if len(authToken) == 0 {
 		return "", errors.New("invalid auth token")
 	}
 
@@ -40,9 +42,10 @@ func (bs *BadSec) GetUsers(authToken string) (string, error) {
 		return "", err
 	}
 
-	userreq := httpMagic.HttpRequest{UUID: "FOO", BaseUrl: "http://localhost:8888", Function: "users", XRequestChecksum: checkSum}
+	userreq := httpMagic.HttpRequest{UUID: "FOO", BaseUrl: bs.Endpoint, Function: "users", XRequestChecksum: checkSum}
 
-	return httpMagic.HttpGetRawString(userreq)
+	return bs.BackOffHandler.Execute(httpMagic.HttpHttpGetRawStringForExp(userreq), userreq)
+
 }
 
 //todo - needs basic tests
@@ -66,7 +69,7 @@ func (bs *BadSec) GetJsonUsers() (string, error) {
 //todo - needs negative tests
 func (bs *BadSec) resultsToJson(results string) (string, error) {
 
-	if len(results) ==  0 {
+	if len(results) == 0 {
 		return "", errors.New("invalid result list")
 	}
 
